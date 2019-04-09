@@ -1,15 +1,19 @@
 package com.ffi.templateservice.domain;
 
 import java.sql.Date;
+import java.util.Set;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "TEMPLATE_MASTER")
@@ -21,11 +25,16 @@ public class TemplateMaster {
 	private int defaultNoOfYear;
 	private int maxNoOfYear;
 	private int minNoOfYear;
-	private String createdBy;
-	private String approvedBy;
+	private UUID createdBy;
+	private UUID approvedBy;
 	private Date createdDate;
-	private Date lastModDate;
+	private Date lastModifiedDate;
 	private boolean isExpired;
+	private Set<TemplateSection> templateSection;
+	
+	public TemplateMaster() {
+		super();
+	}
 
 	@Id
 	@Type(type = "org.hibernate.type.UUIDCharType")
@@ -38,7 +47,7 @@ public class TemplateMaster {
 		this.id = id;
 	}
 
-	@Column(name = "TEMPLATE_NAME")
+	@Column(name = "TEMP_NAME")
 	public String getTemplateName() {
 		return templateName;
 	}
@@ -47,7 +56,7 @@ public class TemplateMaster {
 		this.templateName = templateName;
 	}
 
-	@Column(name = "TEMPLATE_VERSION")
+	@Column(name = "TEMP_VERSION")
 	public String getTemplateVersion() {
 		return templateVersion;
 	}
@@ -56,7 +65,7 @@ public class TemplateMaster {
 		this.templateVersion = templateVersion;
 	}
 
-	@Column(name = "TEMPLATE_TYPE")
+	@Column(name = "TEMP_TYPE")
 	public String getTemplateType() {
 		return templateType;
 	}
@@ -65,7 +74,7 @@ public class TemplateMaster {
 		this.templateType = templateType;
 	}
 
-	@Column(name = "DEFAULT_NO_OF_YEAR")
+	@Column(name = "DEF_NO_YEARS")
 	public int getDefaultNoOfYear() {
 		return defaultNoOfYear;
 	}
@@ -74,7 +83,7 @@ public class TemplateMaster {
 		this.defaultNoOfYear = defaultNoOfYear;
 	}
 
-	@Column(name = "MAX_NO_OF_YEAR")
+	@Column(name = "MAX_NO_YEARS")
 	public int getMaxNoOfYear() {
 		return maxNoOfYear;
 	}
@@ -83,7 +92,7 @@ public class TemplateMaster {
 		this.maxNoOfYear = maxNoOfYear;
 	}
 
-	@Column(name = "MIN_NO_OF_YEAR")
+	@Column(name = "MIN_NO_YEARS")
 	public int getMinNoOfYear() {
 		return minNoOfYear;
 	}
@@ -93,20 +102,20 @@ public class TemplateMaster {
 	}
 
 	@Column(name = "CREATED_BY")
-	public String getCreatedBy() {
+	public UUID getCreatedBy() {
 		return createdBy;
 	}
 
-	public void setCreatedBy(String createdBy) {
+	public void setCreatedBy(UUID createdBy) {
 		this.createdBy = createdBy;
 	}
 
 	@Column(name = "APPROVED_BY")
-	public String getApprovedBy() {
+	public UUID getApprovedBy() {
 		return approvedBy;
 	}
 
-	public void setApprovedBy(String approvedBy) {
+	public void setApprovedBy(UUID approvedBy) {
 		this.approvedBy = approvedBy;
 	}
 
@@ -120,15 +129,15 @@ public class TemplateMaster {
 	}
 
 	@Column(name = "LAST_MODIFIED_DATE")
-	public Date getLastModDate() {
-		return lastModDate;
+	public Date getLastModifiedDate() {
+		return lastModifiedDate;
 	}
 
-	public void setLastModDate(Date lastModDate) {
-		this.lastModDate = lastModDate;
+	public void setLastModifiedDate(Date lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
 	}
 
-	@Column(name = "IS_EXPIRED")
+	@Column(name = "ISEXPIRED")
 	public boolean isExpired() {
 		return isExpired;
 	}
@@ -136,14 +145,23 @@ public class TemplateMaster {
 	public void setExpired(boolean isExpired) {
 		this.isExpired = isExpired;
 	}
+	
+	@JsonManagedReference
+	@OneToMany(mappedBy = "templateMaster", cascade = CascadeType.ALL)
+	public Set<TemplateSection> getTemplateSection() {
+		return templateSection;
+	}
+
+	public void setTemplateSection(Set<TemplateSection> templateSection) {
+		this.templateSection = templateSection;
+	}
 
 	@Override
 	public String toString() {
 		return "TemplateMaster [id=" + id + ", templateName=" + templateName + ", templateVersion=" + templateVersion
 				+ ", templateType=" + templateType + ", defaultNoOfYear=" + defaultNoOfYear + ", maxNoOfYear="
 				+ maxNoOfYear + ", minNoOfYear=" + minNoOfYear + ", createdBy=" + createdBy + ", approvedBy="
-				+ approvedBy + ", createdDate=" + createdDate + ", lastModDate=" + lastModDate + ", isExpired="
-				+ isExpired + "]";
+				+ approvedBy + ", createdDate=" + createdDate + ", lastModifiedDate=" + lastModifiedDate
+				+ ", isExpired=" + isExpired + ", templateSection=" + templateSection + "]";
 	}
-
 }

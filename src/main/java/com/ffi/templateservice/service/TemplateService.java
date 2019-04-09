@@ -4,9 +4,11 @@ import java.util.List;
 
 import com.ffi.templateservice.domain.TemplateMaster;
 import com.ffi.templateservice.exception.ApplicationBusinessException;
+import com.ffi.templateservice.vo.TemplateLabelVO;
 
 public interface TemplateService {
 	
 	public String uploadTemplate(String templateName) throws ApplicationBusinessException;
 	public List<TemplateMaster> getTemplate(String search) throws ApplicationBusinessException; 
+	public List<TemplateLabelVO> fromTemplateMaster(String templateName) throws ApplicationBusinessException;
 }
