@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -34,15 +35,15 @@ public class TemplateServiceEndpoint {
 	TemplateProperities templateProperities;
 	
 	@ApiOperation(value = "Upload Template")
-	@GetMapping(value = "/uploadTemplate/{templateName}", produces = "application/json")
+	@PostMapping(value = "/uploadTemplate",consumes = "application/json" ,produces = "application/json")
 	@ResponseBody
-	public TemplateResponseJson<TemplateResponseObject> uploadTemplate(@PathVariable final String templateName) {
+	public TemplateResponseJson<TemplateResponseObject> uploadTemplate(@RequestBody TemplateRequestJson templateRequestJson) {
 		logger.info("Start of TemplateServiceEndpoint.uploadTemplate()");
 		TemplateResponseJson<TemplateResponseObject> responseJson = new TemplateResponseJson<>();
 		try {
 			TemplateResponseObject responseObject = new TemplateResponseObject();
 			Map<String, Object> data = new HashMap<>();
-			data.put("url",templateService.uploadTemplate(templateName));
+			data.put("url",templateService.uploadTemplate(templateRequestJson.getTemplateName(),templateRequestJson.getData()));
 			data.put("token","");
 			responseObject.setTemplateResponse(data);
 			responseJson.setStatusMessage(templateProperities.getPropertyValue("success.upload.msg"));
@@ -61,7 +62,7 @@ public class TemplateServiceEndpoint {
 	@GetMapping(value = "/getTemplate/{templateName}", produces = "application/json")
 	@ResponseBody
 	public TemplateResponseJson<TemplateResponseObject> getTemplate(@PathVariable final String templateName) {
-		logger.info("Start of TemplateServiceEndpoint.getTemplateDetails()");
+		logger.info("Start of TemplateServiceEndpoint.getTemplate()");
 		TemplateResponseJson<TemplateResponseObject> responseJson = new TemplateResponseJson<>();
 		try {
 			TemplateResponseObject responseObject = new TemplateResponseObject();
@@ -72,11 +73,11 @@ public class TemplateServiceEndpoint {
 			responseJson.setStatusCode(templateProperities.getPropertyValue("success.code"));
 			responseJson.setData(responseObject);
 		} catch (Exception e) {
-			logger.error("Exception in TemplateServiceEndpoint.uploadTemplate()");
+			logger.error("Exception in TemplateServiceEndpoint.getTemplate()");
 			responseJson.setErrorMessage(templateProperities.getPropertyValue("error.msg"));
 			responseJson.setErrorCode(templateProperities.getPropertyValue("error.code"));
 		}
-		logger.info("End of TemplateServiceEndpoint.uploadTemplate()");
+		logger.info("End of TemplateServiceEndpoint.getTemplate()");
 		return responseJson;
 	}
 	
@@ -95,11 +96,11 @@ public class TemplateServiceEndpoint {
 			responseJson.setStatusCode(templateProperities.getPropertyValue("success.code"));
 			responseJson.setData(responseObject);
 		} catch (Exception e) {
-			logger.error("Exception in TemplateServiceEndpoint.uploadTemplate()");
+			logger.error("Exception in TemplateServiceEndpoint.getTemplateDetails()");
 			responseJson.setErrorMessage(templateProperities.getPropertyValue("error.msg"));
 			responseJson.setErrorCode(templateProperities.getPropertyValue("error.code"));
 		}
-		logger.info("End of TemplateServiceEndpoint.uploadTemplate()");
+		logger.info("End of TemplateServiceEndpoint.getTemplateDetails()");
 		return responseJson;
 	}
 	

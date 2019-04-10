@@ -2,8 +2,8 @@ package com.ffi.templateservice.vo;
 
 public class TemplateLabelVO {
 	
-	public String templateLabelId;
-	public String templateLineItem;
+	private String templateLabelId;
+	private String templateLineItem;
 	public String getTemplateLabelId() {
 		return templateLabelId;
 	}

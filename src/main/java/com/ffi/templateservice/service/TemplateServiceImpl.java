@@ -3,9 +3,7 @@ package com.ffi.templateservice.service;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -15,11 +13,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,11 +28,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.AreaReference;
-import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,80 +54,20 @@ public class TemplateServiceImpl implements TemplateService {
 	TemplateProperities templateProperities;
 
 	@Override
-	public String uploadTemplate(String templateName) throws ApplicationBusinessException {
+	public String uploadTemplate(String templateName,Map<String,Map<String,Double>> financialData) throws ApplicationBusinessException {
 		logger.info("Start of TemplateServiceImpl.uploadTemplate()");
 		String webUrl = "";
 		try {
+			Map<String,TreeMap<String,Double>> sortedData = new HashMap<>();
+			for(Map.Entry<String, Map<String, Double>> dataEntry : financialData.entrySet()){
+				Map<String,Double> periodEntry = dataEntry.getValue();
+				TreeMap<String, Double> sortedPeriodMap = new TreeMap<>(Collections.reverseOrder());
+				sortedPeriodMap.putAll(periodEntry);
+				sortedData.put(dataEntry.getKey(), sortedPeriodMap);
+			}
+			
 			String templatePath = copySelectedTemplate(templateName, "UserName");
-			// ----Need to remove
-			/*Map<String, Double> data = new HashMap<>();
-			data.put("DS_CASH_EQUIV_YY1", 18345.00);
-			data.put("DS_CASH_EQUIV_YY2", 17345.00);
-			data.put("DS_CASH_EQUIV_YY3", 16345.00);
-			data.put("DS_CASH_EQUIV_YY4", 15345.00);
-			
-			data.put("DS_FIN_INV_MARKET_SEC_YY1", 18123.00);
-			data.put("DS_FIN_INV_MARKET_SEC_YY2", 17123.00);
-			data.put("DS_FIN_INV_MARKET_SEC_YY3", 16123.00);
-			data.put("DS_FIN_INV_MARKET_SEC_YY4", 15123.00);
-			
-			data.put("DS_TOT_RECEIVABLES_YY1", 18659.00);
-			data.put("DS_TOT_RECEIVABLES_YY2", 17659.00);
-			data.put("DS_TOT_RECEIVABLES_YY3", 16659.00);
-			data.put("DS_TOT_RECEIVABLES_YY4", 15659.00);
-			
-			data.put("DS_ALLOW_DOUBT_DEBT_YY1", 18548.00);
-			data.put("DS_ALLOW_DOUBT_DEBT_YY2", 17548.00);
-			data.put("DS_ALLOW_DOUBT_DEBT_YY3", 16548.00);  
-			data.put("DS_ALLOW_DOUBT_DEBT_YY4", 15548.00);      
-			
-			data.put("DS_INVENTORY_YY1", 18922.00);
-			data.put("DS_INVENTORY_YY2", 17922.00);
-			data.put("DS_INVENTORY_YY3", 16922.00);
-			data.put("DS_INVENTORY_YY4", 15922.00);
-			
-			data.put("DS_PREPAID_EXP_YY1", 18788.00);
-			data.put("DS_PREPAID_EXP_YY2", 17788.00);
-			data.put("DS_PREPAID_EXP_YY3", 16788.00);
-			data.put("DS_PREPAID_EXP_YY4", 15788.00);
-			
-			data.put("DS_CURR_DEF_TAX_YY1", 18777.00);
-			data.put("DS_CURR_DEF_TAX_YY2", 17777.00);
-			data.put("DS_CURR_DEF_TAX_YY3", 16777.00);
-			data.put("DS_CURR_DEF_TAX_YY4", 15777.00);
-			
-			data.put("DS_OTH_OP_CURR_ASSET_YY1", 18911.00);
-			data.put("DS_OTH_OP_CURR_ASSET_YY2", 17911.00);
-			data.put("DS_OTH_OP_CURR_ASSET_YY3", 16911.00);
-			data.put("DS_OTH_OP_CURR_ASSET_YY4", 15911.00);
-			
-			data.put("DS_INTERCOM_CURR_ASSET_YY1", 18667.00);
-			data.put("DS_INTERCOM_CURR_ASSET_YY2", 17667.00);
-			data.put("DS_INTERCOM_CURR_ASSET_YY3", 16667.00);
-			data.put("DS_INTERCOM_CURR_ASSET_YY4", 15667.00);
-			
-			data.put("DS_OTH_NON_OP_CA_YY1", 18112.00);
-			data.put("DS_OTH_NON_OP_CA_YY2", 17112.00);
-			data.put("DS_OTH_NON_OP_CA_YY3", 16112.00);
-			data.put("DS_OTH_NON_OP_CA_YY4", 15112.00);*/
-			
-			Map<String, Map<String,Double>> data = new HashMap<>();
-			Map<String,Double> yearValue = new HashMap<>();
-			yearValue.put("_YY1", 18234.00);
-			yearValue.put("_YY2", 17234.00);
-			yearValue.put("_YY3", 16234.00);
-			yearValue.put("_YY4", 15234.00);
-			data.put("CASH_EQUIV", yearValue);
-			yearValue = new HashMap<>();
-			yearValue.put("_YY1", 18989.00);
-			yearValue.put("_YY2", 17989.00);
-			yearValue.put("_YY3", 16989.00);
-			yearValue.put("_YY4", 15989.00);
-			data.put("FIN_INV_MARKET_SEC", yearValue);
-			
-			// -----
-			populateValueToTemplate1(templatePath, data);
-			
+			populateValueToTemplate(templatePath, sortedData);
 			webUrl = onedriveApiForUpload(templatePath);
 		} catch (ApplicationBusinessException e) {
 			logger.info("Error in TemplateServiceImpl.uploadTemplate()");
@@ -176,64 +110,39 @@ public class TemplateServiceImpl implements TemplateService {
 		logger.info("End of TemplateServiceImpl.copySelectedTemplate()");
 		return filePathObj.toString();
 	}
-
-	public void populateValueToTemplate(String templatePath, Map<String, Double> data)
-			throws ApplicationBusinessException {
-		logger.info("Start of TemplateServiceImpl.populateValueToTemplate()");
-		try(InputStream uploadedFile = new FileInputStream(templatePath);
-			Workbook workbook = new XSSFWorkbook(uploadedFile)) {
-			Iterator<Map.Entry<String, Double>> itr = data.entrySet().iterator();
-			while (itr.hasNext()) {
-				Map.Entry<String, Double> pair = itr.next();
-				Name aNamedCell = workbook.getNameAt(workbook.getNameIndex(pair.getKey()));
-				AreaReference aref = new AreaReference(aNamedCell.getRefersToFormula(), null);
-				CellReference[] crefs = aref.getAllReferencedCells();
-				for (int i = 0; i < crefs.length; i++) {
-					Sheet s = workbook.getSheet(crefs[i].getSheetName());
-					Row r = s.getRow(crefs[i].getRow());
-					Cell c = r.getCell(crefs[i].getCol());
-					c.setCellValue(pair.getValue());
-				}
-			}
-			FileOutputStream outputFile = new FileOutputStream(new File(templatePath));
-			FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
-			formulaEvaluator.evaluateAll();
-			workbook.write(outputFile);
-			outputFile.close();
-			logger.info("End of TemplateServiceImpl.populateValueToTemplate()");
-		} catch (Exception e) {
-			logger.info("Error in TemplateServiceImpl.populateValueToTemplate()"+e.getStackTrace());
-			throw new ApplicationBusinessException(templateProperities.getPropertyValue("error.msg"));
-		}
-	}
 	
-	public void populateValueToTemplate1(String templatePath, Map<String, Map<String,Double>> data)
+	private void populateValueToTemplate(String templatePath, Map<String, TreeMap<String,Double>> data)
 			throws ApplicationBusinessException {
 		logger.info("Start of TemplateServiceImpl.populateValueToTemplate()");
 		try(InputStream uploadedFile = new FileInputStream(templatePath);
 			Workbook workbook = new XSSFWorkbook(uploadedFile)) {
-			for (Map.Entry<String, Map<String, Double>> dataEntry : data.entrySet()) {
-				Name aNamedDataSheetCell = workbook.getNameAt(workbook.getNameIndex(dataEntry.getKey()));
-				AreaReference arefDataSheet = new AreaReference(aNamedDataSheetCell.getRefersToFormula(), null);
-				CellReference crefsDataSheet = arefDataSheet.getAllReferencedCells()[0];
-				for (Map.Entry<String, Double> yearEntry : dataEntry.getValue().entrySet()) {
-					Name aNamedYearDataSheet = workbook.getNameAt(workbook.getNameIndex(yearEntry.getKey()));
-					AreaReference arefYearDataSheet = new AreaReference(aNamedYearDataSheet.getRefersToFormula(), null);
-					CellReference[] crefsYearDataSheet = arefYearDataSheet.getAllReferencedCells();
-					for (int i = 0; i < crefsYearDataSheet.length; i++) {
-						Sheet dataSheet = workbook.getSheet(crefsYearDataSheet[i].getSheetName());
-						Row rowDataSheet = dataSheet.getRow(crefsDataSheet.getRow());
-						Cell cellDataSheet = rowDataSheet.getCell(crefsYearDataSheet[i].getCol());
-						cellDataSheet.setCellValue(yearEntry.getValue());
+			for (Map.Entry<String, TreeMap<String, Double>> dataEntry : data.entrySet()) {
+				int lineItemIndex = workbook.getNameIndex(dataEntry.getKey());
+				int count = 1;
+				if( lineItemIndex != -1){
+					Name namedLineItem = workbook.getNameAt(lineItemIndex);
+					AreaReference arefLineItem = new AreaReference(namedLineItem.getRefersToFormula(), null);
+					CellReference crefsLineItem = arefLineItem.getAllReferencedCells()[0];
+					for (Map.Entry<String, Double> periodEntry : dataEntry.getValue().entrySet()) {
+						Name namedPeriod = workbook.getNameAt(workbook.getNameIndex("DS_YY"+count));
+						AreaReference arefPeriod = new AreaReference(namedPeriod.getRefersToFormula(), null);
+						CellReference[] crefsPeriod = arefPeriod.getAllReferencedCells();
+						for (int i = 0; i < crefsPeriod.length; i++) {
+							Sheet dataSheet = workbook.getSheet(crefsPeriod[i].getSheetName());
+							Row rowDataSheet = dataSheet.getRow(crefsLineItem.getRow());
+							Cell cellDataSheet = rowDataSheet.getCell(crefsPeriod[i].getCol());
+							cellDataSheet.setCellValue(periodEntry.getValue());
+						}
+						
+						Name aNamedBalanceSheet = workbook.getNameAt(workbook.getNameIndex("BS_"+dataEntry.getKey()+"_YY"+count));
+						AreaReference arefBalanceSheet = new AreaReference(aNamedBalanceSheet.getRefersToFormula(), null);
+						CellReference crefsBalanceSheet = arefBalanceSheet.getAllReferencedCells()[0];
+						Sheet balanceSheet = workbook.getSheet(crefsBalanceSheet.getSheetName());
+						Row rowBalanceSheet = balanceSheet.getRow(crefsBalanceSheet.getRow());
+						Cell cellBalanceSheet = rowBalanceSheet.getCell(crefsBalanceSheet.getCol());
+						cellBalanceSheet.setCellValue(periodEntry.getValue());
+						count++;
 					}
-					
-					Name aNamedBalanceSheet = workbook.getNameAt(workbook.getNameIndex("BS_"+dataEntry.getKey()+yearEntry.getKey()));
-					AreaReference arefBalanceSheet = new AreaReference(aNamedBalanceSheet.getRefersToFormula(), null);
-					CellReference crefsBalanceSheet = arefBalanceSheet.getAllReferencedCells()[0];
-					Sheet balanceSheet = workbook.getSheet(crefsBalanceSheet.getSheetName());
-					Row rowBalanceSheet = balanceSheet.getRow(crefsBalanceSheet.getRow());
-					Cell cellBalanceSheet = rowBalanceSheet.getCell(crefsBalanceSheet.getCol());
-					cellBalanceSheet.setCellValue(yearEntry.getValue());
 				}
 			}
 			
@@ -245,7 +154,6 @@ public class TemplateServiceImpl implements TemplateService {
 			outputFile.close();
 			logger.info("End of TemplateServiceImpl.populateValueToTemplate()");
 		} catch (Exception e) {
-			e.printStackTrace();
 			logger.info("Error in TemplateServiceImpl.populateValueToTemplate()"+e.getStackTrace());
 			throw new ApplicationBusinessException(templateProperities.getPropertyValue("error.msg"));
 		}
@@ -253,7 +161,7 @@ public class TemplateServiceImpl implements TemplateService {
 
 	
 
-	public String onedriveApiForUpload(String templatePath) throws ApplicationBusinessException {
+	private String onedriveApiForUpload(String templatePath) throws ApplicationBusinessException {
 		logger.info("Start of TemplateServiceImpl.onedriveApiForUpload()");
 		String webUrl = "";
 		try {
@@ -324,29 +232,6 @@ public class TemplateServiceImpl implements TemplateService {
 		}
 		logger.info("End of TemplateServiceImpl.fromTemplateMaster()");
 		return templateLabel;
-	}
-	
-	public static void main(String[] args) {
-		try (FileInputStream fileInputStream = new FileInputStream("D:\\Phillips 66_SME TemplateV0.1.xlsx");
-				XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream)) {
-			XSSFSheet worksheet = workbook.getSheet("Data Sheet");
-			Iterator<Row> it = worksheet.rowIterator();
-			while (it.hasNext()) {
-				XSSFRow r = (XSSFRow) it.next();
-				Iterator<Cell> it1 = r.cellIterator();
-				while (it1.hasNext()) {
-					XSSFCell cell = (XSSFCell) it1.next();
-					System.out.println("Row: " + cell.getRowIndex() + " ,Column: " + cell.getColumnIndex()+"  Value *="+cell+"*");
-				}
-				System.out.println();
-			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 }
 
