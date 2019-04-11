@@ -1,12 +1,17 @@
 package com.ffi.templateservice.endpoint;
 
-import java.util.Map;
+import java.io.Serializable;
+import java.util.List;
 
-public class TemplateRequestJson {
+import com.ffi.templateservice.dto.TemplateFinancialDTO;
+
+public class TemplateRequestJson implements Serializable{
+
+	private static final long serialVersionUID = 1L;
 
 	private String templateName;
-
-	private Map<String, Map<String, Double>> data;
+	
+	private List<TemplateFinancialDTO> data;
 
 	public String getTemplateName() {
 		return templateName;
@@ -16,16 +21,20 @@ public class TemplateRequestJson {
 		this.templateName = templateName;
 	}
 
-	public Map<String, Map<String, Double>> getData() {
+	public List<TemplateFinancialDTO> getData() {
 		return data;
 	}
 
-	public void setData(Map<String, Map<String, Double>> data) {
+	public void setData(List<TemplateFinancialDTO> data) {
 		this.data = data;
 	}
-
+	
 	@Override
 	public String toString() {
 		return "TemplateRequestJson [templateName=" + templateName + ", data=" + data + "]";
 	}
+
+	
+
+	
 }
