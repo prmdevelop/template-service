@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,6 +31,7 @@ import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONObject;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,11 +42,15 @@ import com.ffi.templateservice.domain.TemplateSection;
 import com.ffi.templateservice.dto.TemplateFinancialDTO;
 import com.ffi.templateservice.exception.ApplicationBusinessException;
 import com.ffi.templateservice.handler.TemplateProperities;
+import com.ffi.templateservice.mapper.TemplateMapper;
+import com.ffi.templateservice.vo.TemplateMasterVO;
 
 @Service
 public class TemplateServiceImpl implements TemplateService {
 
 	private static final Logger logger = LogManager.getLogger(TemplateServiceImpl.class);
+	
+	TemplateMapper mapper=Mappers.getMapper(TemplateMapper.class);
 
 	@Autowired
 	TemplateDao templateDao;
@@ -221,17 +227,18 @@ public class TemplateServiceImpl implements TemplateService {
 	}
 
 	@Override
-	public List<TemplateMaster> getTemplate(String search) throws ApplicationBusinessException {
+	public List<TemplateMasterVO> getTemplate(String search) throws ApplicationBusinessException {
 		logger.info("Start of TemplateServiceImpl.getTemplate()");
-		List<TemplateMaster> templates;
+		List<TemplateMasterVO> templateMasterVO=null;
 		try {
-			templates = templateDao.getTemplate(search);
+			List<TemplateMaster> templates = templateDao.getTemplate(search);
+			templateMasterVO= templates.stream().map(c -> mapper.fromTemplateMaster(c)).collect(Collectors.toList());
 		} catch (Exception e) {
-			logger.error("Error in TemplateServiceImpl.getTemplate()" + e.getCause());
+			logger.error("Error in TemplateServiceImpl.getTemplate()"+ e.getCause());
 			throw new ApplicationBusinessException(templateProperities.getPropertyValue("error.retrieved.msg"));
 		}
 		logger.info("End of TemplateServiceImpl.getTemplate()");
-		return templates;
+		return templateMasterVO;
 	}
 
 	@Override
