@@ -19,4 +19,6 @@ public class TemplateResponseObject implements Serializable{
 	public void setTemplateResponse(Map<String, Object> templateResponse) {
 		this.templateResponse = templateResponse;
 	}
+
+	
 }

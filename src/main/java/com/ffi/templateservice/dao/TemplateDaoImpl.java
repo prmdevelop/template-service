@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.ffi.templateservice.domain.TemplateMaster;
 import com.ffi.templateservice.exception.ApplicationBusinessException;
-import com.ffi.templateservice.handler.TemplateProperities;
+import com.ffi.templateservice.handler.TemplateServiceConfiguration;
 import com.ffi.templateservice.repository.TemplateRepository;
 
 @Component
@@ -20,7 +20,7 @@ public class TemplateDaoImpl implements TemplateDao {
 	TemplateRepository templateRepository;
 
 	@Autowired
-	TemplateProperities templateProperities;
+	TemplateServiceConfiguration configuration;
 
 	@Override
 	public List<TemplateMaster> getTemplate(String search) throws ApplicationBusinessException {
@@ -30,7 +30,7 @@ public class TemplateDaoImpl implements TemplateDao {
 			template = templateRepository.getTemplate(search);
 		} catch (Exception e) {
 			logger.error("Error in TemplateDaoImpl.getTemplate()");
-			throw new ApplicationBusinessException(templateProperities.getPropertyValue("sql.error"), e.getCause());
+			throw new ApplicationBusinessException(configuration.getError().getRetrieve());
 		}
 		logger.info("End of TemplateDaoImpl.getTemplateSearchDataDao()");
 		return template;
