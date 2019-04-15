@@ -1,4 +1,4 @@
-package com.ffi.templateservice.endpoint;
+package com.ffi.templateservice.controller;
 
 import java.io.Serializable;
 import java.util.Map;

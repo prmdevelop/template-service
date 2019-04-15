@@ -1,4 +1,4 @@
-package com.ffi.templateservice.endpoint;
+package com.ffi.templateservice.controller;
 
 public class TemplateResponseJson<T> {
 
